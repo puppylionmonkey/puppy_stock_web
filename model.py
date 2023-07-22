@@ -39,3 +39,6 @@ class TestGetStockPrice:
     def test_get_stock_price_df_from_mongodb(self):
         stock_df = self.get_stock_price.get_stock_price_df_from_mongodb('2330')
         assert '2000-01-04' in str(stock_df['Date'].to_numpy()[0])
+
+    def test_get_all_stock_df_dict_from_mongodb(self):
+        pass
