@@ -11,6 +11,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/recommend_stock')
+def recommend_stock():
+    return render_template('recommend_stock.html')
+
+
 @app.route('/get_stock_data/<string:stock_id>', methods=['GET'])
 def get_stock_data(stock_id):
     # 將股票 ID 附加到 API URL 中

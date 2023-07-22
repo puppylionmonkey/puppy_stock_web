@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from model import GetStockPrice
+from model.get_price_model import GetStockPrice
 
 bp = Blueprint('controller', __name__)
 
