@@ -1,3 +1,5 @@
+import unittest
+
 import numpy as np
 
 
@@ -19,3 +21,19 @@ class TechnicalAnalysisModel:
             rsi = self.get_rsi(days_close_price_list)
             rsi_list.append(rsi)
         return rsi_list
+
+
+class TestFeatureFunction(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.technical_analysis_model = TechnicalAnalysisModel()
+
+    def test_get_up_down_list(self):
+        self.assertEqual(self.technical_analysis_model.get_up_down_list([10, 5, 15, 20]), [0, -5, 10, 5])
+
+    def test_get_rsi(self):
+        self.assertEqual(self.technical_analysis_model.get_rsi([23.7, 27.9, 26.5, 29.6, 31.1, 29.4]), 73.95)
+
+    def test_get_rsi_list(self):
+        self.assertEqual(self.technical_analysis_model.get_rsi_list([23.7, 27.9, 26.5, 29.6, 31.1, 29.4, 25.5, 28.9, 20.5, 23.3], 6),
+                         [0, 0, 0, 0, 0, 73.95, 39.66, 58.82, 25.93, 30.69])
