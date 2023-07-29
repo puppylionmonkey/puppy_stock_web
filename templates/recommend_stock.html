@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,19 +7,46 @@
     <h1>股票推薦選項</h1>
     <p>請選擇推薦股票的條件：</p>
     <ul>
-        <li><a href="/get_rsi_small_than_20_stock_id">RSI小於20</a></li>
-{#        <li><a href="/recommend/KD_gold_cross">KD黃金交叉</a></li>#}
-        <!-- 添加其他選項 -->
+        <li><input type="checkbox" class="conditionCheckbox" value="KD黃金交叉">KD黃金交叉</li>
+        <li><input type="checkbox" class="conditionCheckbox" value="RSI小於20">RSI小於20</li>
+        <li><input type="checkbox" class="conditionCheckbox" value="選項 3">選項 3</li>
+        <li><input type="checkbox" class="conditionCheckbox" value="選項 4">選項 4</li>
+        <li><input type="checkbox" class="conditionCheckbox" value="選項 5">選項 5</li>
     </ul>
-    <div>
-        {% if stock_id_list %}
-            <h2>RSI小於20的股票</h2>
-            <ul>
-                {% for stock_id in stock_id_list %}
-                    <li>{{ stock_id }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
+    <button onclick="getSelectedConditions()">查詢</button>
+    <div id="selectedOptions"></div>
+    <div id="stockList"></div>
+    <script>
+        function getSelectedConditions() {
+            const conditionCheckboxes = document.getElementsByClassName("conditionCheckbox");
+            const selectedOptions = [];
+
+            for (let i = 0; i < conditionCheckboxes.length; i++) {
+                if (conditionCheckboxes[i].checked) {
+                    selectedOptions.push(conditionCheckboxes[i].value);
+                }
+            }
+
+            // 發送 AJAX 請求並處理回傳的資料
+            fetch('/get_recommend_stock_list', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    options: selectedOptions
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const stockListDiv = document.getElementById("stockList");
+                stockListDiv.innerHTML = "<h2>符合條件的股票</h2><ul>";
+                data.stock_id_list.forEach(stock_id => {
+                    stockListDiv.innerHTML += "<li>" + stock_id + "</li>";
+                });
+                stockListDiv.innerHTML += "</ul>";
+            });
+        }
+    </script>
 </body>
 </html>

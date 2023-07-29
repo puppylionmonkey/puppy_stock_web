@@ -5,3 +5,4 @@ pandas
 requests
 pytest
 # TA-Lib # https://pixnashpython.pixnet.net/blog/post/28035316-%E3%80%90talib%E3%80%91python%E4%B8%80%E6%AC%A1%E5%B0%B1%E8%A3%9D%E5%A5%BDtalib%E7%9A%84%E6%96%B9%E6%B3%95%E5%8F%8A%E4%BD%BF%E7%94%A8talib
+Flask-Caching
