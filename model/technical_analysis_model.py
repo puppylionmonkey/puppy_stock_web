@@ -64,7 +64,7 @@ class TechnicalAnalysisModel:
                 kd_golden_cross_list.append(stock_id)
         return kd_golden_cross_list
 
-    def get_rsi_below_20_stock_id(self, all_stock_id_np, all_stock_df_dict):
+    def get_rsi_below_20_stock_id_list(self, all_stock_id_np, all_stock_df_dict):
         technical_analysis_model = TechnicalAnalysisModel()
         get_realtime_stock_price = GetRealtimeStockPrice()
         now_stock_df = get_realtime_stock_price.get_realtime_strock_price_df()
@@ -79,6 +79,20 @@ class TechnicalAnalysisModel:
             if today_rsi < 20:
                 rsi_small_than_20_stock_id_list.append(stock_id)
         return rsi_small_than_20_stock_id_list
+
+    def above_percent_increase_stock_id_list(self, all_stock_id_np, all_stock_df_dict, percent):
+        get_realtime_stock_price = GetRealtimeStockPrice()
+        now_stock_df = get_realtime_stock_price.get_realtime_strock_price_df()
+        stock_id_list = list()
+        for stock_id in all_stock_id_np:
+            stock_df = all_stock_df_dict[stock_id]
+            # stock_df = pd.concat([stock_df, now_stock_df[now_stock_df['stock_id'] == str(stock_id)]])
+            close_price_list = stock_df['Close'].to_list()
+            today_price = close_price_list[-1]
+            yesterday_price = close_price_list[-2]
+            if (today_price - yesterday_price) / yesterday_price > percent:
+                stock_id_list.append(stock_id)
+        return stock_id_list
 
 
 class TestFeatureFunction(unittest.TestCase):
