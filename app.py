@@ -27,20 +27,14 @@ app.secret_key = "bfe53d416ad39325e33062c5d7c629d962919a6edb88b0b7d4ba636b7ab237
 @app.route("/", methods=["GET", "POST"])
 def login():
     if "username" in session:
-        print('111')
         return redirect(url_for("welcome"))
-    print('abc')
     if request.method == "POST":
         login_user = users.find_one({"username": request.form["username"]})
-        print('abc1')
         if login_user:
             if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
                 session["username"] = request.form["username"]
-                print('abc')
                 return redirect(url_for("welcome"))
         return "無效的用戶名或密碼！"
-    else:
-        print('no')
     return render_template("login.html")
 
 
@@ -76,8 +70,8 @@ def dashboard():
 
 @app.route("/logout")
 def logout():
-    session.pop("username", None)
-    return redirect(url_for("welcome"))
+    session.clear()
+    return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
