@@ -4,7 +4,7 @@ from model.get_price_model import GetStockHistoryPrice
 from model.technical_analysis_model import TechnicalAnalysisModel
 from path_config import path_database_path
 from flask_caching import Cache
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 import bcrypt
 
@@ -111,20 +111,43 @@ def place_order():
         action = request.form["action"]
         quantity = int(request.form["quantity"])
         price = float(request.form["price"])
-        order = {
-            "stock_symbol": stock_symbol,
-            "action": action,
-            "quantity": quantity,
-            "price": price
-        }
 
-        orders_collection = db["orders"]
+
+
+        orders_collection = db["stock_inventory"]
+        existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": session["username"]})
 
         if action == "buy":
-            orders_collection.insert_one(order)
+            if existing_order:
+                print('買進，有同股票庫存')
+                new_quantity = existing_order["quantity"] + quantity
+                orders_collection.update_one(
+                    {"stock_symbol": stock_symbol, "username": session["username"]},
+                    {"$set": {"quantity": new_quantity}}
+                )
+            else:
+                print('買進，無同股票庫存')
+                order = {
+                    "username": session["username"],
+                    "stock_symbol": stock_symbol,
+                    "action": action,
+                    "quantity": quantity,
+                    "price": price
+                }
+                orders_collection.insert_one(order)
         elif action == "sell":
-            orders_collection.delete_one(order)
+            if existing_order and existing_order["quantity"] >= quantity:
+                new_quantity = existing_order["quantity"] - quantity
+                orders_collection.update_one(
+                    {"stock_symbol": stock_symbol, "username": session["username"]},
+                    {"$set": {"quantity": new_quantity}}
+                )
+            else:
+                print('sell，不夠')
+                flash("股數不足，無法賣出該股票。")
+
         return redirect(url_for("welcome"))
+
     return render_template("stock_order.html")  # 顯示下單表單
 
 
