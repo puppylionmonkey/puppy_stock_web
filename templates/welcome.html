@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>puppy_stock</title>
+</head>
+<body>
+<h1>puppy_stock</h1>
+<h1>歡迎來到帳號註冊登入系統</h1>
+<p><a href="{{ url_for('register') }}">註冊</a> | <a href="{{ url_for('login') }}">登入</a></p>
+<button onclick="recommendStock()">推薦股票</button>
+<button onclick="marketAnalysis()">大盤分析</button>
+<button onclick="placeOrder()">下單</button> <!-- 新增的下單按鈕 -->
+<div id="result"></div>
+<script>
+    function recommendStock() {
+        // 將視窗導向到下一個頁面
+        window.location.href = "/recommend_stock";
+    }
+
+    function marketAnalysis() {
+        // 在此處可使用 JavaScript 進行大盤分析的處理，並將結果顯示在 <div id="result"> 中
+        document.getElementById("result").innerText = "這裡顯示大盤分析結果";
+    }
+
+    function placeOrder() {
+        // 將視窗導向到下單頁面
+        window.location.href = "/place_order";  // 根據你的路由設計
+    }
+</script>
+</body>
+</html>

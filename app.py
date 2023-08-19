@@ -23,9 +23,32 @@ db = client["user_db"]
 users = db["users"]
 app.secret_key = "bfe53d416ad39325e33062c5d7c629d962919a6edb88b0b7d4ba636b7ab23743"
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if "username" in session:
+        print('111')
+        return redirect(url_for("welcome"))
+    print('abc')
+    if request.method == "POST":
+        login_user = users.find_one({"username": request.form["username"]})
+        print('abc1')
+        if login_user:
+            if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
+                session["username"] = request.form["username"]
+                print('abc')
+                return redirect(url_for("welcome"))
+        return "無效的用戶名或密碼！"
+    else:
+        print('no')
+    return render_template("login.html")
+
+
+@app.route("/welcome")
+def welcome():
+    if "username" in session:
+        return render_template("welcome.html")
+    return redirect(url_for("login"))
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -43,17 +66,6 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        login_user = users.find_one({"username": request.form["username"]})
-        if login_user:
-            if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
-                session["username"] = request.form["username"]
-                return redirect(url_for("dashboard"))
-        return "無效的用戶名或密碼！"
-    return render_template("login.html")
-
 # 登入後
 @app.route("/dashboard")
 def dashboard():
@@ -65,7 +77,7 @@ def dashboard():
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return redirect(url_for("index"))
+    return redirect(url_for("welcome"))
 
 
 if __name__ == "__main__":
@@ -98,6 +110,30 @@ def get_recommend_stock_list():
     stock_id_list = list(stock_id_list)
     print(stock_id_list)
     return jsonify({"stock_id_list": stock_id_list})
+
+
+@app.route("/place_order", methods=["POST"])
+def place_order():
+    stock_symbol = request.form["stock_symbol"]
+    action = request.form["action"]
+    quantity = int(request.form["quantity"])
+    price = float(request.form["price"])
+
+    order = {
+        "stock_symbol": stock_symbol,
+        "action": action,
+        "quantity": quantity,
+        "price": price
+    }
+
+    orders_collection = db["orders"]
+
+    if action == "buy":
+        orders_collection.insert_one(order)
+    elif action == "sell":
+        orders_collection.delete_one(order)
+
+    return redirect(url_for("welcome"))
 
 
 if __name__ == '__main__':
