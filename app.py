@@ -74,10 +74,6 @@ def logout():
     return redirect(url_for("login"))
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
 @app.route('/recommend_stock')
 def recommend_stock():
     return render_template('recommend_stock.html')
@@ -106,28 +102,30 @@ def get_recommend_stock_list():
     return jsonify({"stock_id_list": stock_id_list})
 
 
-@app.route("/place_order", methods=["POST"])
+@app.route("/place_order", methods=["GET", "POST"])
 def place_order():
-    stock_symbol = request.form["stock_symbol"]
-    action = request.form["action"]
-    quantity = int(request.form["quantity"])
-    price = float(request.form["price"])
+    if "username" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        stock_symbol = request.form["stock_symbol"]
+        action = request.form["action"]
+        quantity = int(request.form["quantity"])
+        price = float(request.form["price"])
+        order = {
+            "stock_symbol": stock_symbol,
+            "action": action,
+            "quantity": quantity,
+            "price": price
+        }
 
-    order = {
-        "stock_symbol": stock_symbol,
-        "action": action,
-        "quantity": quantity,
-        "price": price
-    }
+        orders_collection = db["orders"]
 
-    orders_collection = db["orders"]
-
-    if action == "buy":
-        orders_collection.insert_one(order)
-    elif action == "sell":
-        orders_collection.delete_one(order)
-
-    return redirect(url_for("welcome"))
+        if action == "buy":
+            orders_collection.insert_one(order)
+        elif action == "sell":
+            orders_collection.delete_one(order)
+        return redirect(url_for("welcome"))
+    return render_template("stock_order.html")  # 顯示下單表單
 
 
 if __name__ == '__main__':
