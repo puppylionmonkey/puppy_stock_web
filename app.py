@@ -21,6 +21,7 @@ all_stock_df_dict = get_stock_history_price.get_all_stock_df_dict_from_mongodb(a
 client = MongoClient("mongodb://localhost:27017/")
 db = client["user_db"]
 users = db["users"]
+orders_collection = db["stock_inventory"]
 app.secret_key = "bfe53d416ad39325e33062c5d7c629d962919a6edb88b0b7d4ba636b7ab23743"
 
 
@@ -106,15 +107,15 @@ def get_recommend_stock_list():
 def place_order():
     if "username" not in session:
         return redirect(url_for("login"))
+
+    inventory = list(orders_collection.find({"username": session["username"]}))
+
     if request.method == "POST":
         stock_symbol = request.form["stock_symbol"]
         action = request.form["action"]
         quantity = int(request.form["quantity"])
         price = float(request.form["price"])
 
-
-
-        orders_collection = db["stock_inventory"]
         existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": session["username"]})
 
         if action == "buy":
@@ -136,19 +137,20 @@ def place_order():
                 }
                 orders_collection.insert_one(order)
         elif action == "sell":
-            if existing_order and existing_order["quantity"] >= quantity:
-                new_quantity = existing_order["quantity"] - quantity
-                orders_collection.update_one(
-                    {"stock_symbol": stock_symbol, "username": session["username"]},
-                    {"$set": {"quantity": new_quantity}}
-                )
-            else:
-                print('sell，不夠')
-                flash("股數不足，無法賣出該股票。")
+            if action == "sell":
+                if existing_order and existing_order["quantity"] >= quantity:
+                    new_quantity = existing_order["quantity"] - quantity
+                    if new_quantity == 0:
+                        orders_collection.delete_one({"stock_symbol": stock_symbol, "username": session["username"]})
+                    else:
+                        orders_collection.update_one(
+                            {"stock_symbol": stock_symbol, "username": session["username"]},
+                            {"$set": {"quantity": new_quantity}}
+                        )
+                else:
+                    flash("股數不足，無法賣出該股票。")
 
-        return redirect(url_for("welcome"))
-
-    return render_template("stock_order.html")  # 顯示下單表單
+    return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單
 
 
 if __name__ == '__main__':
