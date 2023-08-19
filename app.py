@@ -108,6 +108,7 @@ def place_order():
     if "username" not in session:
         return redirect(url_for("login"))
 
+    # 檢索該使用者的庫存股票
     inventory = list(orders_collection.find({"username": session["username"]}))
 
     if request.method == "POST":
@@ -120,14 +121,14 @@ def place_order():
 
         if action == "buy":
             if existing_order:
-                print('買進，有同股票庫存')
+                # 買進，有相同股票庫存
                 new_quantity = existing_order["quantity"] + quantity
                 orders_collection.update_one(
                     {"stock_symbol": stock_symbol, "username": session["username"]},
                     {"$set": {"quantity": new_quantity}}
                 )
             else:
-                print('買進，無同股票庫存')
+                # 買進，無相同股票庫存
                 order = {
                     "username": session["username"],
                     "stock_symbol": stock_symbol,
@@ -137,20 +138,21 @@ def place_order():
                 }
                 orders_collection.insert_one(order)
         elif action == "sell":
-            if action == "sell":
-                if existing_order and existing_order["quantity"] >= quantity:
-                    new_quantity = existing_order["quantity"] - quantity
-                    if new_quantity == 0:
-                        orders_collection.delete_one({"stock_symbol": stock_symbol, "username": session["username"]})
-                    else:
-                        orders_collection.update_one(
-                            {"stock_symbol": stock_symbol, "username": session["username"]},
-                            {"$set": {"quantity": new_quantity}}
-                        )
+            if existing_order and existing_order["quantity"] >= quantity:
+                new_quantity = existing_order["quantity"] - quantity
+                if new_quantity == 0:
+                    # 賣出，庫存為 0，刪除相應記錄
+                    orders_collection.delete_one({"stock_symbol": stock_symbol, "username": session["username"]})
                 else:
-                    flash("股數不足，無法賣出該股票。")
+                    # 賣出，更新庫存數量
+                    orders_collection.update_one(
+                        {"stock_symbol": stock_symbol, "username": session["username"]},
+                        {"$set": {"quantity": new_quantity}}
+                    )
+            else:
+                flash("股數不足，無法賣出該股票。")
 
-    return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單
+    return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
 
 
 if __name__ == '__main__':
