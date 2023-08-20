@@ -31,7 +31,6 @@ class GetRealtimeStockPrice:
         if response.status_code == 200:
             data = response.json()
             if "msgArray" in data:
-                print(data)
                 best_sell_data = float(data["msgArray"][0]["a"].split('_')[0])
                 best_buy_data = float(data["msgArray"][0]["b"].split('_')[0])
                 return best_sell_data, best_buy_data

@@ -161,5 +161,14 @@ def place_order():
     return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
 
 
+@app.route("/get_inventory")
+def get_inventory():
+    # 檢索該使用者的庫存股票
+    inventory = list(orders_collection.find({"username": session["username"]}))
+    inventory_data = [{"stock_symbol": item["stock_symbol"], "quantity": item["quantity"]} for item in inventory]
+    return jsonify(inventory_data)  # 返回 JSON 格式的庫存數據
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
