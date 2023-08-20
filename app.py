@@ -1,5 +1,6 @@
 import pandas as pd
 from controller.api_controller import bp as controller_bp
+from model.get_now_price_model import GetRealtimeStockPrice
 from model.get_price_model import GetStockHistoryPrice
 from model.technical_analysis_model import TechnicalAnalysisModel
 from path_config import path_database_path
@@ -105,6 +106,7 @@ def get_recommend_stock_list():
 
 @app.route("/place_order", methods=["GET", "POST"])
 def place_order():
+    get_realtime_stock_price = GetRealtimeStockPrice()
     if "username" not in session:
         return redirect(url_for("login"))
 
@@ -115,8 +117,12 @@ def place_order():
         stock_symbol = request.form["stock_symbol"]
         action = request.form["action"]
         quantity = int(request.form["quantity"])
-        price = float(request.form["price"])
 
+        best_sell_data, best_buy_data = get_realtime_stock_price.get_best_five_quotes(stock_symbol)
+        if action == 'buy':
+            price = best_sell_data
+        else:
+            price = best_buy_data
         existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": session["username"]})
 
         if action == "buy":
