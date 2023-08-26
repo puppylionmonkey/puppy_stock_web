@@ -112,9 +112,15 @@ def stock_order():
         return redirect(url_for("login"))
     # 檢索該使用者的庫存股票
     inventory = order_model.get_user_inventory(session["username"])
+    # 計算未實現損益
     for stock_data in inventory:
-        # now_price = get_realtime_stock_price.get_best_five_quotes(stock_data['stock_symbol'])['z']
-        stock_data['unrealized_profit'] = '100'
+        now_price = get_realtime_stock_price.get_realtime_open_low_high_close_price(stock_data['stock_symbol'])
+        new_total_price = now_price * stock_data['quantity']
+        old_total_price = stock_data['total_price']
+        buy_fee = old_total_price * 0.1425 / 100 * 0.28
+        sell_fee = new_total_price * 0.1425 / 100 * 0.28
+        tax = new_total_price * 0.3 / 100
+        stock_data['unrealized_profit'] = new_total_price - old_total_price - buy_fee - sell_fee - tax
 
     if request.method == "POST":
         stock_symbol = request.form["stock_symbol"]

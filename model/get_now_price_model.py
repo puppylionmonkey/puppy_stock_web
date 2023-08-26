@@ -5,10 +5,23 @@ import requests
 
 
 class GetRealtimeStockPrice:
-    def get_best_five_quotes(self, stock_code):
+    def get_realtime_open_low_high_close_price(self, stock_symbol):
         api_url = f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp"
         params = {
-            "ex_ch": f"tse_{stock_code}.tw",  # 股票代碼格式
+            "ex_ch": f"tse_{stock_symbol}.tw",  # 股票代碼格式
+            "json": "1",
+        }
+        response = requests.get(api_url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            print(data["msgArray"])
+            if "msgArray" in data:
+                return float(data["msgArray"][0]["z"])  # close price
+
+    def get_best_five_quotes(self, stock_symbol):
+        api_url = f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp"
+        params = {
+            "ex_ch": f"tse_{stock_symbol}.tw",  # 股票代碼格式
             "json": "1",
         }
         response = requests.get(api_url, params=params)
