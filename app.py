@@ -130,7 +130,9 @@ def stock_order():
         elif action == "sell":
             order_model.sell_stock(session["username"], stock_symbol, quantity, price)
 
-    return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
+        return redirect(url_for('stock_order'))
+    else:
+        return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
 
 
 @app.route("/get_inventory")
