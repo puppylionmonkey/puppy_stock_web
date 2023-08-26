@@ -121,6 +121,7 @@ def stock_order():
         sell_fee = new_total_price * 0.1425 / 100 * 0.28
         tax = new_total_price * 0.3 / 100
         stock_data['unrealized_profit'] = new_total_price - old_total_price - buy_fee - sell_fee - tax
+        # print(new_total_price, old_total_price, buy_fee, sell_fee, tax)
 
     if request.method == "POST":
         stock_symbol = request.form["stock_symbol"]

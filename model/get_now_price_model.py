@@ -14,7 +14,6 @@ class GetRealtimeStockPrice:
         response = requests.get(api_url, params=params)
         if response.status_code == 200:
             data = response.json()
-            print(data["msgArray"])
             if "msgArray" in data:
                 return float(data["msgArray"][0]["z"])  # close price
 
@@ -27,7 +26,6 @@ class GetRealtimeStockPrice:
         response = requests.get(api_url, params=params)
         if response.status_code == 200:
             data = response.json()
-            print(data["msgArray"])
             if "msgArray" in data:
                 best_sell_data = float(data["msgArray"][0]["a"].split('_')[0])
                 best_buy_data = float(data["msgArray"][0]["b"].split('_')[0])
