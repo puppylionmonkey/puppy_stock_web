@@ -113,10 +113,14 @@ def stock_order():
     # 檢索該使用者的庫存股票
     inventory = order_model.get_user_inventory(session["username"])
     if request.method == "POST":
+        print(request.form)
         stock_symbol = request.form["stock_symbol"]
-        action = request.form["action"]
         quantity = int(request.form["quantity"])
         best_sell_data, best_buy_data = get_realtime_stock_price.get_best_five_quotes(stock_symbol)
+        if 'buy' in request.form:
+            action = 'buy'
+        else:
+            action = 'sell'
         if action == 'buy':
             price = best_sell_data
         else:

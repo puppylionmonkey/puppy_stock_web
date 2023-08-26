@@ -62,22 +62,47 @@
         #inventory-table tr:hover {
             background-color: #ddd;
         }
+
+        .buy-button {
+            background-color: red; /* 初始颜色为白色 */
+        }
+
+        .sell-button {
+            background-color: green; /* 初始颜色为白色 */
+        }
     </style>
 </head>
 <body>
 <h1>股票下單</h1>
-<form action="/stock_order" method="POST" id="order-form">
+<form method="POST" id="order-form">
     <label for="stock_symbol">股票代號：</label>
     <input type="text" id="stock_symbol" name="stock_symbol" required>
-    <label for="action">操作：</label>
-    <select id="action" name="action" required>
-        <option value="buy">買進</option>
-        <option value="sell">賣出</option>
-    </select>
     <label for="quantity">數量：</label>
     <input type="number" id="quantity" name="quantity" required>
-    <button type="submit">送出</button>
+    <button class="buy-button" type="button" id="buy">買進</button>
+    <button class="sell-button" type="button" id="sell">賣出</button>
 </form>
+
+<script>
+    document.getElementById("buy").addEventListener("click", function () {
+        submitForm("buy");
+    });
+
+    document.getElementById("sell").addEventListener("click", function () {
+        submitForm("sell");
+    });
+
+    function submitForm(action) {
+        var form = document.getElementById("order-form");
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", action);
+        input.setAttribute("value", "true");
+        form.appendChild(input);
+        form.submit();
+    }
+</script>
+
 <div id="inventory">
     <h2>庫存股票</h2>
     <table id="inventory-table">
