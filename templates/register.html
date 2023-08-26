@@ -2,15 +2,66 @@
 <html>
 <head>
     <title>註冊</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .register-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .register-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .register-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .register-form input[type="text"],
+        .register-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .register-form button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>註冊新帳號</h1>
-    <form method="POST" action="/register">
-        <label for="username">用戶名：</label>
-        <input type="text" id="username" name="username" required><br>
-        <label for="password">密碼：</label>
-        <input type="password" id="password" name="password" required><br>
-        <button type="submit">註冊</button>
-    </form>
+    <div class="register-container">
+        <h1 class="register-title">註冊新帳號</h1>
+        <form class="register-form" method="POST" action="/register">
+            <label for="username">用戶名：</label>
+            <input type="text" id="username" name="username" required><br>
+            <label for="password">密碼：</label>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">註冊</button>
+        </form>
+    </div>
 </body>
 </html>
