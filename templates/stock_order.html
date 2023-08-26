@@ -110,62 +110,21 @@
         <tr>
             <th>股票代號</th>
             <th>數量</th>
+            <th>總價金</th>
+            <th>未實現損益</th>
         </tr>
         </thead>
         <tbody>
-        <!-- 库存股票信息将通过 JavaScript 动态填充到这里 -->
+        {% for item in inventory %}
+            <tr>
+                <td>{{ item.stock_symbol }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.total_price }}</td>
+                <td>{{ item.unrealized_profit }}</td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
-<script>
-    // 在页面加载时执行的 JavaScript 代码
-    window.onload = function () {
-        // 获取表单和库存元素
-        var orderForm = document.getElementById("order-form");
-        var inventoryTable = document.getElementById("inventory-table");
-
-        // 向服务器请求库存数据并动态填充到表格中
-        function refreshInventory() {
-            fetch("/get_inventory")
-                .then(response => response.json())  // 使用 response.json() 解析 JSON 數據
-                .then(data => {
-                    // 清空表格內容
-                    inventoryTable.querySelector("tbody").innerHTML = "";
-
-                    // 將庫存數據添加到表格中
-                    data.forEach(item => {
-                        var row = inventoryTable.insertRow();
-                        var stockSymbolCell = row.insertCell(0);
-                        var quantityCell = row.insertCell(1);
-                        stockSymbolCell.textContent = item.stock_symbol;
-                        quantityCell.textContent = item.quantity;
-                    });
-                });
-        }
-
-        // 提交表单时，阻止默认提交，使用 fetch 请求后端进行下单操作，然后刷新库存
-        orderForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            // 獲取表單數據
-            var formData = new FormData(orderForm);
-
-            // 將表單數據發送到服務器
-            fetch("/stock_order", {
-                method: "POST",
-                body: formData  // 將表單數據包含在請求中
-            })
-                .then(response => response.text())
-                .then(data => {
-                    // 在下单后，刷新库存数据
-                    refreshInventory();
-                    // 重新載入整個頁面
-                    location.reload();
-                });
-        });
-
-        // 页面加载时初始刷新一次库存数据
-        refreshInventory();
-    };
-</script>
 </body>
 </html>

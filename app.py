@@ -112,8 +112,11 @@ def stock_order():
         return redirect(url_for("login"))
     # 檢索該使用者的庫存股票
     inventory = order_model.get_user_inventory(session["username"])
+    for stock_data in inventory:
+        # now_price = get_realtime_stock_price.get_best_five_quotes(stock_data['stock_symbol'])['z']
+        stock_data['unrealized_profit'] = '100'
+
     if request.method == "POST":
-        print(request.form)
         stock_symbol = request.form["stock_symbol"]
         quantity = int(request.form["quantity"])
         best_sell_data, best_buy_data = get_realtime_stock_price.get_best_five_quotes(stock_symbol)
@@ -125,6 +128,7 @@ def stock_order():
             price = best_sell_data
         else:
             price = best_buy_data
+
         if action == "buy":
             order_model.buy_stock(session["username"], stock_symbol, quantity, price)
         elif action == "sell":
@@ -133,14 +137,6 @@ def stock_order():
         return redirect(url_for('stock_order'))
     else:
         return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
-
-
-@app.route("/get_inventory")
-def get_inventory():
-    # 檢索該使用者的庫存股票
-    inventory = list(orders_collection.find({"username": session["username"]}))
-    inventory_data = [{"stock_symbol": item["stock_symbol"], "quantity": item["quantity"]} for item in inventory]
-    return jsonify(inventory_data)  # 返回 JSON 格式的庫存數據
 
 
 if __name__ == '__main__':
