@@ -133,6 +133,8 @@
                 .then(data => {
                     // 在下单后，刷新库存数据
                     refreshInventory();
+                    // 重新載入整個頁面
+                    location.reload();
                 });
         });
 
