@@ -58,10 +58,20 @@ def register():
         existing_user = users.find_one({"username": request.form["username"]})
         if existing_user is None:
             hashed_password = bcrypt.hashpw(request.form["password"].encode("utf-8"), bcrypt.gensalt())
+            username = request.form["username"]
             users.insert_one({
-                "username": request.form["username"],
+                "username": username,
                 "password": hashed_password
             })
+            # 建立初始金額
+            client = MongoClient("mongodb://localhost:27017/")
+            db = client["user_db"]
+            user_balance_collection = db["user_balance"]
+            user_balance_dict = {
+                "username": username,
+                "balance": 1000000,
+            }
+            user_balance_collection.insert_one(user_balance_dict)
             return redirect(url_for("login"))
         return "該用戶名已存在！"
     return render_template("register.html")
@@ -112,7 +122,6 @@ def get_recommend_stock_list():
 def stock_order():
     user_dict = session['user_dict']
     user = User(user_dict['username'])
-    initial_balance = user.get_initial_balance()
 
     get_realtime_stock_price = GetRealtimeStockPrice()
     order_model = OrderModel()
