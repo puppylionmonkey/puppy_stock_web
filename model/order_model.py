@@ -55,3 +55,6 @@ class OrderModel:
                 "total_price": price * -quantity
             }
             self.orders_collection.insert_one(order)
+
+    def get_fee(self, quantity, price):
+        return quantity * price * 0.1425 / 100 * 0.28

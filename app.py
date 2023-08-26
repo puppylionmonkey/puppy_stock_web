@@ -38,7 +38,7 @@ def login():
             if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
                 session["username"] = request.form["username"]
                 user = User(session["username"])
-                user_dict = {'username': user.username, 'initial_balance': user.initial_balance}
+                user_dict = {'username': user.username, 'initial_balance': user.balance}
                 session['user_dict'] = user_dict
                 return redirect(url_for("welcome"))
         return "無效的用戶名或密碼！"
@@ -155,8 +155,17 @@ def stock_order():
             price = best_buy_data
 
         if action == "buy":
+            total_price = quantity * price
+            buy_fee = order_model.get_fee(quantity, price)
+            user.update_balance(-total_price - buy_fee)
             order_model.buy_stock(session["username"], stock_symbol, quantity, price)
         elif action == "sell":
+            total_price = quantity * price
+            buy_fee = order_model.get_fee(quantity, price)
+            tax = total_price * 0.3 / 100
+
+            user.update_balance(+total_price - buy_fee - tax)
+
             order_model.sell_stock(session["username"], stock_symbol, quantity, price)
 
         return redirect(url_for('stock_order'))
