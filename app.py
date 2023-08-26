@@ -2,6 +2,7 @@ import pandas as pd
 from controller.api_controller import bp as controller_bp
 from model.get_now_price_model import GetRealtimeStockPrice
 from model.get_price_model import GetStockHistoryPrice
+from model.order_model import OrderModel
 from model.technical_analysis_model import TechnicalAnalysisModel
 from path_config import path_database_path
 from flask_caching import Cache
@@ -107,6 +108,7 @@ def get_recommend_stock_list():
 @app.route("/place_order", methods=["GET", "POST"])
 def place_order():
     get_realtime_stock_price = GetRealtimeStockPrice()
+    order_model = OrderModel()
     if "username" not in session:
         return redirect(url_for("login"))
 
@@ -123,51 +125,11 @@ def place_order():
             price = best_sell_data
         else:
             price = best_buy_data
-        existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": session["username"]})
 
         if action == "buy":
-            if existing_order:
-                # 買進，有相同股票庫存
-                print('買進，有相同股票庫存')
-                new_quantity = existing_order["quantity"] + quantity
-                if new_quantity == 0:  # 買進，庫存為 0，刪除相應記錄
-                    orders_collection.delete_one({"stock_symbol": stock_symbol, "username": session["username"]})
-                else:
-                    orders_collection.update_one(
-                        {"stock_symbol": stock_symbol, "username": session["username"]},
-                        {"$set": {"quantity": new_quantity}}
-                    )
-            else:
-                # 買進，無相同股票庫存
-                print('買進，無相同股票庫存')
-                order = {
-                    "username": session["username"],
-                    "stock_symbol": stock_symbol,
-                    "quantity": quantity,
-                    "price": price
-                }
-                orders_collection.insert_one(order)
+            order_model.buy_stock(session["username"], stock_symbol, quantity, price)
         elif action == "sell":
-            if existing_order:
-                print('賣出，有相同股票庫存')
-                new_quantity = existing_order["quantity"] - quantity
-                if new_quantity == 0:  # 賣出，庫存為 0，刪除相應記錄
-                    orders_collection.delete_one({"stock_symbol": stock_symbol, "username": session["username"]})
-                else:  # 賣出，更新庫存數量
-                    orders_collection.update_one(
-                        {"stock_symbol": stock_symbol, "username": session["username"]},
-                        {"$set": {"quantity": new_quantity}}
-                    )
-            else:
-                print('賣出，無相同股票庫存')
-                order = {
-                    "username": session["username"],
-                    "stock_symbol": stock_symbol,
-                    "quantity": -quantity,
-                    "price": price
-                }
-                orders_collection.insert_one(order)
-                # flash("股數不足，無法賣出該股票。")
+            order_model.sell_stock(session["username"], stock_symbol, quantity, price)
 
     return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
 
