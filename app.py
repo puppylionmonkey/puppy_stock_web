@@ -4,6 +4,7 @@ from model.get_now_price_model import GetRealtimeStockPrice
 from model.get_price_model import GetStockHistoryPrice
 from model.order_model import OrderModel
 from model.technical_analysis_model import TechnicalAnalysisModel
+from model.user_model import User
 from path_config import path_database_path
 from flask_caching import Cache
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
@@ -36,6 +37,9 @@ def login():
         if login_user:
             if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
                 session["username"] = request.form["username"]
+                user = User(session["username"])
+                user_dict = {'username': user.username, 'initial_balance': user.initial_balance}
+                session['user_dict'] = user_dict
                 return redirect(url_for("welcome"))
         return "無效的用戶名或密碼！"
     return render_template("login.html")
@@ -106,10 +110,15 @@ def get_recommend_stock_list():
 
 @app.route("/stock_order", methods=["GET", "POST"])
 def stock_order():
+    user_dict = session['user_dict']
+    user = User(user_dict['username'])
+    initial_balance = user.get_initial_balance()
+
     get_realtime_stock_price = GetRealtimeStockPrice()
     order_model = OrderModel()
     if "username" not in session:
         return redirect(url_for("login"))
+
     # 檢索該使用者的庫存股票
     inventory = order_model.get_user_inventory(session["username"])
     # 計算未實現損益
@@ -143,7 +152,7 @@ def stock_order():
 
         return redirect(url_for('stock_order'))
     else:
-        return render_template("stock_order.html", inventory=inventory)  # 顯示下單表單和庫存股票
+        return render_template("stock_order.html", inventory=inventory, user=user)  # 顯示下單表單和庫存股票
 
 
 if __name__ == '__main__':
