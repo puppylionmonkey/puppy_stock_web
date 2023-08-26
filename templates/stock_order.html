@@ -66,7 +66,7 @@
 </head>
 <body>
 <h1>股票下單</h1>
-<form action="/place_order" method="POST" id="order-form">
+<form action="/stock_order" method="POST" id="order-form">
     <label for="stock_symbol">股票代號：</label>
     <input type="text" id="stock_symbol" name="stock_symbol" required>
     <label for="action">操作：</label>
@@ -125,7 +125,7 @@
             var formData = new FormData(orderForm);
 
             // 將表單數據發送到服務器
-            fetch("/place_order", {
+            fetch("/stock_order", {
                 method: "POST",
                 body: formData  // 將表單數據包含在請求中
             })

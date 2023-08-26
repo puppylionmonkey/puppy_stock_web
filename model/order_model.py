@@ -11,6 +11,9 @@ class OrderModel:
         self.orders_collection = self.db["stock_inventory"]
         self.get_realtime_stock_price = GetRealtimeStockPrice()
 
+    def get_user_inventory(self, username):
+        return list(self.orders_collection.find({"username": username}))
+
     def buy_stock(self, username, stock_symbol, quantity, price):
         existing_order = self.orders_collection.find_one({"stock_symbol": stock_symbol, "username": username})
 

@@ -95,7 +95,6 @@ def get_recommend_stock_list():
         tech_stock_id_list_list.append(technical_analysis_model.get_rsi_below_20_stock_id_list(all_stock_id_np, all_stock_df_dict))
     if '漲5%以上' in selected_conditions:
         tech_stock_id_list_list.append(technical_analysis_model.above_percent_increase_stock_id_list(all_stock_id_np, all_stock_df_dict, 0.05))
-
     # 做交集
     stock_id_list = set(tech_stock_id_list_list[0])
     for sublist in tech_stock_id_list_list[1:]:
@@ -105,27 +104,23 @@ def get_recommend_stock_list():
     return jsonify({"stock_id_list": stock_id_list})
 
 
-@app.route("/place_order", methods=["GET", "POST"])
-def place_order():
+@app.route("/stock_order", methods=["GET", "POST"])
+def stock_order():
     get_realtime_stock_price = GetRealtimeStockPrice()
     order_model = OrderModel()
     if "username" not in session:
         return redirect(url_for("login"))
-
     # 檢索該使用者的庫存股票
-    inventory = list(orders_collection.find({"username": session["username"]}))
-
+    inventory = order_model.get_user_inventory(session["username"])
     if request.method == "POST":
         stock_symbol = request.form["stock_symbol"]
         action = request.form["action"]
         quantity = int(request.form["quantity"])
-
         best_sell_data, best_buy_data = get_realtime_stock_price.get_best_five_quotes(stock_symbol)
         if action == 'buy':
             price = best_sell_data
         else:
             price = best_buy_data
-
         if action == "buy":
             order_model.buy_stock(session["username"], stock_symbol, quantity, price)
         elif action == "sell":
