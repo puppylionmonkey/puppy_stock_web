@@ -28,6 +28,40 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        /* 添加一些樣式來美化表格 */
+        #inventory {
+            margin-top: 20px;
+        }
+
+        #inventory h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        #inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+
+        #inventory-table th, #inventory-table td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        #inventory-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        #inventory-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #inventory-table tr:hover {
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -42,8 +76,6 @@
     </select>
     <label for="quantity">數量：</label>
     <input type="number" id="quantity" name="quantity" required>
-    {#    <label for="price">價格：</label>#}
-    {#    <input type="number" id="price" name="price" required>#}
     <button type="submit">送出</button>
 </form>
 <div id="inventory">
@@ -60,41 +92,6 @@
         </tbody>
     </table>
 </div>
-<style>
-    /* 添加一些樣式來美化表格 */
-    #inventory {
-        margin-top: 20px;
-    }
-
-    #inventory h2 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-    #inventory-table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-    }
-
-    #inventory-table th, #inventory-table td {
-        padding: 8px;
-        text-align: left;
-    }
-
-    #inventory-table th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    #inventory-table tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    #inventory-table tr:hover {
-        background-color: #ddd;
-    }
-</style>
 <script>
     // 在页面加载时执行的 JavaScript 代码
     window.onload = function () {
@@ -124,7 +121,14 @@
         // 提交表单时，阻止默认提交，使用 fetch 请求后端进行下单操作，然后刷新库存
         orderForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            fetch("/place_order", {method: "POST"})
+            // 獲取表單數據
+            var formData = new FormData(orderForm);
+
+            // 將表單數據發送到服務器
+            fetch("/place_order", {
+                method: "POST",
+                body: formData  // 將表單數據包含在請求中
+            })
                 .then(response => response.text())
                 .then(data => {
                     // 在下单后，刷新库存数据
