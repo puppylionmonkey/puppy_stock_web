@@ -39,7 +39,7 @@ def login():
             if bcrypt.checkpw(request.form["password"].encode("utf-8"), login_user["password"]):
                 session["username"] = request.form["username"]
                 user = User(session["username"])
-                user_dict = {'username': user.username, 'initial_balance': user.balance}
+                user_dict = {'username': user.username, 'balance': user.balance}
                 session['user_dict'] = user_dict
                 return redirect(url_for("welcome"))
         return "無效的用戶名或密碼！"

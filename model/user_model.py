@@ -1,5 +1,7 @@
 from pymongo import MongoClient
 
+from model.financial_system_model import FinancialSystemModel
+
 
 class User:
     def __init__(self, username):
@@ -8,7 +10,8 @@ class User:
         self.user_balance_collection = self.db["user_balance"]
 
         self.username = username
-        self.balance = self.get_balance()
+        financial_systemModel = FinancialSystemModel()
+        self.balance = financial_systemModel.get_balance(username)
 
     def buy_stock(self, orders_collection, username, stock_symbol, quantity, price):
         existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": username})
@@ -30,10 +33,6 @@ class User:
                 "total_price": price * quantity
             }
             orders_collection.insert_one(order)
-
-
-
-
 
     def sell_stock(self, orders_collection, username, stock_symbol, quantity, price):
         existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": username})

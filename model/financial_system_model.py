@@ -7,12 +7,12 @@ class FinancialSystemModel:
         self.db = self.client["user_db"]
         self.user_balance_collection = self.db["user_balance"]
 
-    def get_balance(self):
-        user_balance_dict = self.user_balance_collection.find_one({"username": self.username})
+    def get_balance(self, username):
+        user_balance_dict = self.user_balance_collection.find_one({"username": username})
         return user_balance_dict['balance']
 
     def update_balance(self, username, add_balance):
-        balance = self.get_balance()
+        balance = self.get_balance(username)
         new_balance = balance + add_balance
         self.user_balance_collection.update_one(
             {"username": username},
