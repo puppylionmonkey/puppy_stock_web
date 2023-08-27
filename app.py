@@ -1,5 +1,6 @@
 import pandas as pd
 from controller.api_controller import bp as controller_bp
+from model.financial_system_model import FinancialSystemModel
 from model.get_now_price_model import GetRealtimeStockPrice
 from model.get_price_model import GetStockHistoryPrice
 from model.order_model import OrderModel
@@ -116,12 +117,14 @@ def get_recommend_stock_list():
 
 @app.route("/stock_order", methods=["GET", "POST"])
 def stock_order():
+    financial_system = FinancialSystemModel()
+    get_realtime_stock_price = GetRealtimeStockPrice()
+
     if "username" not in session:
         return redirect(url_for("login"))
     user_dict = session['user_dict']
     user = User(user_dict['username'])
 
-    get_realtime_stock_price = GetRealtimeStockPrice()
     order_model = OrderModel()
     if "username" not in session:
         return redirect(url_for("login"))
@@ -134,8 +137,8 @@ def stock_order():
         new_total_price = now_price * stock_data['quantity']
         old_total_price = stock_data['total_price']
         buy_fee = old_total_price * 0.1425 / 100 * 0.28
-        sell_fee = new_total_price * 0.1425 / 100 * 0.28
-        tax = new_total_price * 0.3 / 100
+        sell_fee = financial_system.get_fee(stock_data['quantity'], now_price)
+        tax = financial_system.get_tax(stock_data['quantity'], now_price)
         stock_data['unrealized_profit'] = new_total_price - old_total_price - buy_fee - sell_fee - tax
         # print(new_total_price, old_total_price, buy_fee, sell_fee, tax)
 
@@ -154,17 +157,17 @@ def stock_order():
 
         if action == "buy":
             total_price = quantity * price
-            buy_fee = order_model.get_fee(quantity, price)
-            user.update_balance(-total_price - buy_fee)
-            order_model.buy_stock(session["username"], stock_symbol, quantity, price)
+            buy_fee = financial_system.get_fee(quantity, price)
+            financial_system.update_balance(user.username, -total_price - buy_fee)
+            user.buy_stock(order_model.orders_collection, session["username"], stock_symbol, quantity, price)
         elif action == "sell":
             total_price = quantity * price
-            buy_fee = order_model.get_fee(quantity, price)
-            tax = total_price * 0.3 / 100
+            buy_fee = financial_system.get_fee(quantity, price)
+            tax = financial_system.get_tax(quantity, price)
 
-            user.update_balance(+total_price - buy_fee - tax)
+            financial_system.update_balance(user.username, +total_price - buy_fee - tax)
 
-            order_model.sell_stock(session["username"], stock_symbol, quantity, price)
+            user.sell_stock(order_model.orders_collection, session["username"], stock_symbol, quantity, price)
 
         return redirect(url_for('stock_order'))
     else:

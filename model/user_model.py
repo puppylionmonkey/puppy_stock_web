@@ -10,14 +10,48 @@ class User:
         self.username = username
         self.balance = self.get_balance()
 
-    def get_balance(self):
-        user_balance_dict = self.user_balance_collection.find_one({"username": self.username})
-        return user_balance_dict['balance']
+    def buy_stock(self, orders_collection, username, stock_symbol, quantity, price):
+        existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": username})
+        if existing_order:  # 有庫存
+            new_quantity = existing_order["quantity"] + quantity
+            if new_quantity == 0:
+                orders_collection.delete_one({"stock_symbol": stock_symbol, "username": username})
+            else:
+                new_total_price = existing_order["total_price"] + price * quantity
+                orders_collection.update_one(
+                    {"stock_symbol": stock_symbol, "username": username},
+                    {"$set": {"quantity": new_quantity, "total_price": new_total_price}}
+                )
+        else:  # 沒庫存
+            order = {
+                "username": username,
+                "stock_symbol": stock_symbol,
+                "quantity": quantity,
+                "total_price": price * quantity
+            }
+            orders_collection.insert_one(order)
 
-    def update_balance(self, add_balance):
-        balance = self.get_balance()
-        new_balance = balance + add_balance
-        self.user_balance_collection.update_one(
-            {"username": self.username},
-            {"$set": {"balance": new_balance}}
-        )
+
+
+
+
+    def sell_stock(self, orders_collection, username, stock_symbol, quantity, price):
+        existing_order = orders_collection.find_one({"stock_symbol": stock_symbol, "username": username})
+        if existing_order:  # 有庫存
+            new_quantity = existing_order["quantity"] - quantity
+            if new_quantity == 0:
+                orders_collection.delete_one({"stock_symbol": stock_symbol, "username": username})
+            else:
+                new_total_price = existing_order["total_price"] - price * quantity
+                orders_collection.update_one(
+                    {"stock_symbol": stock_symbol, "username": username},
+                    {"$set": {"quantity": new_quantity, "total_price": new_total_price}}
+                )
+        else:  # 沒庫存
+            order = {
+                "username": username,
+                "stock_symbol": stock_symbol,
+                "quantity": -quantity,
+                "total_price": price * -quantity
+            }
+            orders_collection.insert_one(order)
