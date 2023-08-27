@@ -88,25 +88,6 @@
     <button class="sell-button" type="button" id="sell">賣出</button>
 </form>
 
-<script>
-    document.getElementById("buy").addEventListener("click", function () {
-        submitForm("buy");
-    });
-
-    document.getElementById("sell").addEventListener("click", function () {
-        submitForm("sell");
-    });
-
-    function submitForm(action) {
-        var form = document.getElementById("order-form");
-        var input = document.createElement("input");
-        input.setAttribute("type", "hidden");
-        input.setAttribute("name", action);
-        input.setAttribute("value", "true");
-        form.appendChild(input);
-        form.submit();
-    }
-</script>
 
 <div id="inventory">
     <h2>庫存股票</h2>
@@ -126,10 +107,44 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.total_price }}</td>
                 <td>{{ item.unrealized_profit }}</td>
+                <td>
+                    <button class="sell-button">平倉</button>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
+<script>
+    document.getElementById("buy").addEventListener("click", function () {
+        submitForm("buy");
+    });
+
+    document.getElementById("sell").addEventListener("click", function () {
+        submitForm("sell");
+    });
+
+    // 添加卖出点击事件
+    document.querySelectorAll(".sell-button").forEach(function (button) {
+        button.addEventListener("click", function () {
+            var row = button.closest("tr");
+            var stockSymbol = row.querySelector("td:first-child").textContent;
+            var quantity = row.querySelector("td:nth-child(2)").textContent;
+            document.getElementById("stock_symbol").value = stockSymbol;
+            document.getElementById("quantity").value = quantity;
+        });
+    });
+
+    function submitForm(action) {
+        var form = document.getElementById("order-form");
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", action);
+        input.setAttribute("value", "true");
+        form.appendChild(input);
+        form.submit();
+    }
+</script>
+
 </body>
 </html>
