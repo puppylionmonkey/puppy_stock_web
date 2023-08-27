@@ -156,17 +156,8 @@ def stock_order():
             price = best_buy_data
 
         if action == "buy":
-            total_price = quantity * price
-            buy_fee = financial_system.get_fee(quantity, price)
-            financial_system.update_balance(user.username, -total_price - buy_fee)
             user.buy_stock(order_model.orders_collection, session["username"], stock_symbol, quantity, price)
         elif action == "sell":
-            total_price = quantity * price
-            buy_fee = financial_system.get_fee(quantity, price)
-            tax = financial_system.get_tax(quantity, price)
-
-            financial_system.update_balance(user.username, +total_price - buy_fee - tax)
-
             user.sell_stock(order_model.orders_collection, session["username"], stock_symbol, quantity, price)
 
         return redirect(url_for('stock_order'))
