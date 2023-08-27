@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>puppy_stock</title>
+    <style>
+        /* 样式等头部样式部分的内容 */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .logout-button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>puppy_stock</h1>
+        <button class="logout-button" onclick="logout()">登出</button>
+    </div>
+</body>
+<script>
+    function logout() {
+        // 将窗口导向到登出路由
+        window.location.href = "/logout";
+    }
+</script>
+</html>

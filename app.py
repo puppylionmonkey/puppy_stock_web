@@ -77,14 +77,6 @@ def register():
     return render_template("register.html")
 
 
-# 登入後
-@app.route("/dashboard")
-def dashboard():
-    if "username" in session:
-        return f"歡迎，{session['username']}！這是你的儀表板。"
-    return redirect(url_for("login"))
-
-
 @app.route("/logout")
 def logout():
     session.clear()
@@ -93,11 +85,15 @@ def logout():
 
 @app.route('/recommend_stock')
 def recommend_stock():
+    if "username" not in session:
+        return redirect(url_for("login"))
     return render_template('recommend_stock.html')
 
 
 @app.route('/get_recommend_stock_list', methods=['POST'])
 def get_recommend_stock_list():
+    if "username" not in session:
+        return redirect(url_for("login"))
     selected_conditions = request.get_json()['options']
     print(selected_conditions)
     tech_stock_id_list_list = []
@@ -120,6 +116,8 @@ def get_recommend_stock_list():
 
 @app.route("/stock_order", methods=["GET", "POST"])
 def stock_order():
+    if "username" not in session:
+        return redirect(url_for("login"))
     user_dict = session['user_dict']
     user = User(user_dict['username'])
 
